@@ -21,3 +21,7 @@ This section of the `README` outlines the processes/practices that should be fol
 - Pull requests should be reviewed by at least one collaborator, before being approved
 - Pull request reviewers should review against the acceptance criteria on the feature ticket
 - Upon pull request approval, commit history should be squashed and the feature branch should be deleted
+
+## Authors
+
+Laura Wiltshire and Fraser Dwyer
