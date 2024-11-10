@@ -1,20 +1,36 @@
 .headerContainer {
     background-color: #7e5635;
+    padding: 2rem 1rem;
+    display: flex;
+    justify-content: space-between;
+}
+
+.logoContainer {
     display: flex;
     justify-content: left;
     align-items: center;
-    padding: 2rem 1rem;
 }
 
-.headerContainer p {
+.logoContainer p {
     margin: 0;
     padding-left: 1rem;
     font-size: 3rem;
     color: #f3d2ae;
-    font-family: 'Kanit', sans-serif ;
 }
 
-.logo {
+.logoContainer img {
     width: 5rem;
     aspect-ratio: 1/1;
+}
+
+.linkContainer {
+    display: flex;
+    gap: 3rem;
+    color: #f3d2ae;
+    font-size: 1.5rem;
+}
+
+/* Spacing to right of end component */
+.linkContainer:last-child {
+    margin-right: 3rem;
 }
