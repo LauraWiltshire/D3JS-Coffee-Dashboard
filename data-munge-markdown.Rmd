@@ -1,0 +1,164 @@
+---
+title: "Coffee Data Analysis"
+author: "Laura Wiltshire"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+# Introduction
+This analysis involves cleaning and processing a raw coffee dataset, 
+imputing missing values, and performing initial exploratory data analysis 
+(EDA) using R.
+---
+
+# Setup and Libraries
+```{r setup, include=FALSE}
+# Install and Load necessary libraries
+# Define a function to install and load required packages
+install_and_load <- function(packages) {
+  for (pkg in packages) {
+    if (!require(pkg, character.only = TRUE)) {
+      install.packages(pkg, dependencies = TRUE)
+      library(pkg, character.only = TRUE)
+    }
+  }
+}
+
+# List of required packages
+required_packages <- c("tidyverse", "VIM", "e1071", "knitr", "rmarkdown")
+
+# Install and load the required packages
+install_and_load(required_packages)
+
+```
+
+# Load the Coffee Dataset
+```{r Load the Dataset}
+# Load the raw dataset
+coffee_data <- read_csv("coffee-data-raw.csv")
+
+# Extract structure of the dataset into a neat table
+data_summary <- tibble(
+  Variable = names(coffee_data),
+  Type = sapply(coffee_data, class),
+  Observations = sapply(
+    coffee_data, 
+    function(x) if (is.atomic(x)) length(x) else NA
+  ),
+  Missing = sapply(coffee_data, function(x) sum(is.na(x)))
+)
+
+# Display the table
+kable(
+  data_summary,
+  caption = "Summary of the raw coffee dataset",
+  col.names = c(
+    "Variable", "Type", "Number of Observations", "Missing Values"
+  ),
+  format = "html"
+)
+```
+
+# Impute Missing Values for 'roast'
+```{r Impute missing roast values using k-means clustering}
+set.seed(123)
+
+coffee_data_imputed <- coffee_data %>%
+  mutate(roast_imp = is.na(roast)) %>%
+  VIM::kNN(variable = "roast", k = 5, imp_var = TRUE)
+
+```
+
+# Compare Original vs Imputed Values for Roast
+```{r Compare original and imputed values of roast}
+# Extract original and imputed roast values
+original_values <- coffee_data_imputed %>% 
+  filter(roast_imp == FALSE) %>% 
+  pull(roast)
+
+imputed_values <- coffee_data_imputed %>% 
+  filter(roast_imp == TRUE) %>% 
+  pull(roast)
+
+# Plot density comparison of original and imputed values
+ggplot(coffee_data_imputed, aes(x = roast, fill = roast_imp)) +
+  geom_density(alpha = 0.6) + 
+  scale_fill_manual(
+    values = c("FALSE" = "#69b3a2", "TRUE" = "#404080"),
+    labels = c("Original Values", "Imputed Values")
+  ) +
+  labs(
+    x = "Roast Value",
+    y = "Density",
+    title = "Density Comparison of Original vs. Imputed Values",
+    fill = "Value Type"
+  ) +
+  theme_minimal() +
+  theme(
+    legend.position = "top",
+    axis.title = element_text(size = 12),
+    axis.text = element_text(size = 10),
+    plot.title = element_text(size = 14, face = "bold"),
+    panel.grid.minor = element_blank()
+  )
+```
+
+# Generate Histogram of Coffee Ratings
+```{r Histogram of Coffee Ratings}
+ggplot(coffee_data_imputed, aes(x = rating)) +
+  geom_histogram(binwidth = 2, fill = "brown", color = "black") +
+  theme_minimal() +
+  labs(
+    x = "Rating Score",
+    y = "Frequency"
+  ) +
+  theme(
+    panel.grid = element_blank(),
+    axis.title = element_text(size = 12), 
+    axis.text = element_text(size = 10)
+  )
+```
+
+# Generate Descriptive Statistics for Coffee Ratings
+```{r Summary Statistics}
+rating_summary <- data.frame(
+  Statistic = c(
+    "Minimum", "Maximum", "Mean", "Median", "Mode", 
+    "Range", "Variance", "Standard Deviation", "IQR", 
+    "Skewness", "Kurtosis"
+  ),
+  Value = c(
+    min(coffee_data$rating, na.rm = TRUE),
+    max(coffee_data$rating, na.rm = TRUE),
+    mean(coffee_data$rating, na.rm = TRUE),
+    median(coffee_data$rating, na.rm = TRUE),
+    mode(coffee_data$rating), 
+    paste(range(coffee_data$rating, na.rm = TRUE), collapse = "-"),
+    var(coffee_data$rating, na.rm = TRUE),
+    sd(coffee_data$rating, na.rm = TRUE),
+    IQR(coffee_data$rating, na.rm = TRUE),
+    skewness(coffee_data$rating, na.rm = TRUE),
+    kurtosis(coffee_data$rating, na.rm = TRUE)
+  )
+)
+
+kable(
+  rating_summary,
+  caption = "Summary Statistics for Coffee Ratings",
+  col.names = c("Statistic", "Value"),
+  format = "html"
+)
+
+```
+
+# Save the Tidied Version of Coffee Data as .CSV
+```{r Save the Final Version of Coffee Data}
+rmarkdown::pandoc_available()
+
+write_csv(coffee_data_imputed, "coffee-data-tidy.csv")
+
+cat("The final dataset has been saved as 'coffee-data-tidy.csv'.\n")
+
+rmarkdown::render("data-munge-markdown.Rmd")
+
+```

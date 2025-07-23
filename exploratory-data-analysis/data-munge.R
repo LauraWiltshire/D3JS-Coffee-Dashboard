@@ -11,6 +11,7 @@ glimpse(coffee_data)
 colSums(is.na(coffee_data)) #  roast has 12 NA values
 
 # Impute using KNN and keep track of which values were imputed
+set.seed(123) 
 coffee_data_imputed <- VIM::kNN(coffee_data, variable = "roast", k = 5, imp_var = TRUE)
 
 # Filter rows where roast was imputed
