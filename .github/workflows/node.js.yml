@@ -1,0 +1,60 @@
+# This workflow will do a clean installation of node dependencies, cache/restore them, build the source code and run tests across different versions of node
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-nodejs
+
+name: Node.js CI
+
+on:
+  push:
+    branches: [ "integration" ]
+  pull_request:
+    branches: [ "integration" ]
+
+jobs:
+  build:
+    name: Build Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci  # Clean install
+      - run: npm run build
+
+  lint:
+    name: Lint Code
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Run ESLint
+        run: npm run eslint
+
+      - name: Check HTML contains expected string
+        run: |  # Check eslint report contains the HTML for 'Errors 0, Warnings 0'
+            node -e "
+                const fs = require('fs');
+                const html = fs.readFileSync('index.html', 'utf8');
+                const regex = /<tr>\s*<td>Errors<\/td>\s*<td>0<\/td>\s*<\/tr>\s*<tr>\s*<td>Warnings<\/td>\s*<td>0<\/td>\s*<\/tr>/s;
+
+                if (!regex.test(html)) {
+                    console.error('❌ Errors / Warnings found in ESLint Report');
+                    process.exit(1);
+                }
+
+                console.log('✅ No errors / warnings found in ESLint Report');
+            "
+
+      - name: Upload ESlint Report
+        uses: actions/upload-artifact@v4
+        with:
+          eslint-results: eslintReport.html
+
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+    needs: lint
+
+    steps:
+      - name: Run ESLint
+        run: npm run eslint
