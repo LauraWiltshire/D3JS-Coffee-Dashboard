@@ -48,7 +48,7 @@ jobs:
         run: |  # Check eslint report contains the HTML for 'Errors 0, Warnings 0'
             node -e "
                 const fs = require('fs');
-                const html = fs.readFileSync('index.html', 'utf8');
+                const html = fs.readFileSync('eslintReport.html', 'utf8');
                 const regex = /<tr>\s*<td>Errors<\/td>\s*<td>0<\/td>\s*<\/tr>\s*<tr>\s*<td>Warnings<\/td>\s*<td>0<\/td>\s*<\/tr>/s;
 
                 if (!regex.test(html)) {
