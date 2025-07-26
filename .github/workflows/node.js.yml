@@ -15,11 +15,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm i
+
+      - run: npm ci  # Clean install
       - run: npm run build
 
   lint:
@@ -27,6 +31,16 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
       - name: Run ESLint
         run: npm run eslint
 
@@ -56,5 +70,15 @@ jobs:
     needs: lint
 
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - run: npm install
+
       - name: Run ESLint
-        run: npm run eslint
+        run: npm run test
