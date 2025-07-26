@@ -7,9 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "eslint": "eslint ./src/app -f node_modules/eslint-html-reporter/reporter.js -o eslintReport.html",
     "test": "jest"
   },
   "dependencies": {
+    "eslint-html-reporter": "^0.7.4",
     "next": "15.4.4",
     "react": "19.1.0",
     "react-dom": "19.1.0"
