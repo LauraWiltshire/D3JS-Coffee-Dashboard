@@ -83,3 +83,9 @@ jobs:
 
       - name: Run ESLint
         run: npm run test
+
+      - name: Upload Test Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: testReport
+          path: testReport.html
